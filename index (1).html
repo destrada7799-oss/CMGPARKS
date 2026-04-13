@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shaded Haven RV Park — Updated Ads Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f4f0;
+      --bg-tertiary: #eeede9;
+      --text-primary: #1a1a18;
+      --text-secondary: #6b6a65;
+      --border: rgba(0,0,0,0.1);
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-primary: #1e1e1c;
+        --bg-secondary: #2a2a28;
+        --bg-tertiary: #141412;
+        --text-primary: #f0efeb;
+        --text-secondary: #9a9993;
+        --border: rgba(255,255,255,0.1);
+      }
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .dash {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--bg-primary);
+      border-radius: 16px;
+      padding: 2rem;
+      border: 0.5px solid var(--border);
+    }
+
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .header p { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+    .badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .badge-green  { background: #EAF3DE; color: #3B6D11; }
+    .badge-blue   { background: #E6F1FB; color: #185FA5; }
+    .badge-amber  { background: #FAEEDA; color: #633806; }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 1.25rem;
+    }
+
+    .kpi {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value { font-size: 26px; font-weight: 500; color: var(--text-primary); line-height: 1; }
+    .kpi-sub   { font-size: 11px; color: var(--text-secondary); margin-top: 5px; }
+    .good  { color: #3B6D11; font-weight: 500; }
+    .info  { color: #185FA5; font-weight: 500; }
+    .warn  { color: #854F0B; font-weight: 500; }
+
+    .charts-top { display: grid; grid-template-columns: 1fr 1.5fr; gap: 12px; margin-bottom: 12px; }
+    .charts-bot { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; margin-bottom: 12px; }
+
+    .card {
+      background: var(--bg-primary);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .card-title {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+
+    .auction-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    .auction-stat {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .auction-val  { font-size: 28px; font-weight: 500; color: var(--text-primary); }
+    .auction-lbl  { font-size: 11px; color: var(--text-secondary); margin-top: 3px; }
+    .auction-note { font-size: 11px; color: #3B6D11; font-weight: 500; margin-top: 2px; }
+
+    .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+    .insight {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .insight-text { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+    .insight-text strong { font-weight: 500; color: var(--text-primary); }
+
+    .next-step {
+      background: #EAF3DE;
+      border: 0.5px solid #C0DD97;
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+    }
+
+    .next-title {
+      font-size: 10px;
+      font-weight: 500;
+      color: #27500A;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+
+    .next-items { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+    .next-item {
+      background: #fff;
+      border: 0.5px solid #C0DD97;
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #3B6D11;
+      line-height: 1.5;
+    }
+
+    .next-item strong {
+      display: block;
+      font-weight: 500;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      margin-bottom: 4px;
+      color: #27500A;
+    }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .ld {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+      margin-right: 3px;
+      vertical-align: middle;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 700px) {
+      .kpi-grid     { grid-template-columns: repeat(2, 1fr); }
+      .charts-top,
+      .charts-bot   { grid-template-columns: 1fr; }
+      .insight-grid { grid-template-columns: 1fr; }
+      .next-items   { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dash">
+
+    <div class="header">
+      <div>
+        <h1>Shaded Haven RV Park</h1>
+        <p>Updated Google Ads Dashboard &nbsp;·&nbsp; March 14 – April 12, 2025</p>
+      </div>
+      <div class="badges">
+        <span class="badge badge-green">Phrase Match Active</span>
+        <span class="badge badge-blue">Conversion Tracking Live</span>
+        <span class="badge badge-amber">Observation Phase</span>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-label">Max CPC set</div>
+        <div class="kpi-value">$3.00</div>
+        <div class="kpi-sub">Bid ceiling</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Actual avg CPC</div>
+        <div class="kpi-value">$2.29</div>
+        <div class="kpi-sub"><span class="good">24% below max</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Impression share</div>
+        <div class="kpi-value">26.3%</div>
+        <div class="kpi-sub"><span class="good">Market leader</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Top of page rate</div>
+        <div class="kpi-value">79%</div>
+        <div class="kpi-sub"><span class="info">Premium position</span></div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">Mobile share</div>
+        <div class="kpi-value">91%</div>
+        <div class="kpi-sub"><span class="warn">Click-to-Call priority</span></div>
+      </div>
+    </div>
+
+    <div class="charts-top">
+      <div class="card">
+        <div class="card-title">Budget distribution by device</div>
+        <div style="position:relative;width:100%;height:185px">
+          <canvas id="deviceChart" role="img" aria-label="Donut chart: Mobile phones 91%, Computers 6.7%, Tablets 2.3%, TV screens 0%"></canvas>
+        </div>
+        <div class="legend-row" id="devLeg"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Reach by age group — impressions</div>
+        <div style="position:relative;width:100%;height:210px">
+          <canvas id="ageChart" role="img" aria-label="Bar chart of impressions by age group, 18-24 through 65 plus"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-bot">
+      <div class="card">
+        <div class="card-title">Search volume by hour of day</div>
+        <div style="position:relative;width:100%;height:210px">
+          <canvas id="hourChart" role="img" aria-label="Line chart showing peak search activity from 11am to 6pm"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Auction insights — impression share</div>
+        <div class="auction-grid">
+          <div class="auction-stat">
+            <div class="auction-val">26.3%</div>
+            <div class="auction-lbl">Your impression share</div>
+            <div class="auction-note">Market leader</div>
+          </div>
+          <div class="auction-stat">
+            <div class="auction-val">79%</div>
+            <div class="auction-lbl">Top of page rate</div>
+            <div class="auction-note">Top 4 results</div>
+          </div>
+        </div>
+        <div style="position:relative;width:100%;height:130px">
+          <canvas id="compChart" role="img" aria-label="Bar chart comparing impression share versus competitors"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="card-title">Top 5 performing search terms by spend</div>
+      <div style="position:relative;width:100%;height:220px">
+        <canvas id="termChart" role="img" aria-label="Horizontal bar chart of top search terms by total spend"></canvas>
+      </div>
+    </div>
+
+    <div class="insight-grid">
+      <div class="insight">
+        <div class="insight-text"><strong>CPC goldilocks zone:</strong> At $2.29 actual vs $3.00 max, we are winning top-tier auctions without overpaying. High ad relevance earns a Google Quality Score discount — more clicks within the same daily budget.</div>
+      </div>
+      <div class="insight">
+        <div class="insight-text"><strong>Market dominance:</strong> 26.3% impression share means Shaded Haven is the single most-visible RV park advertiser in Bakersfield digital search. All known competitors are under 10% share.</div>
+      </div>
+      <div class="insight">
+        <div class="insight-text"><strong>Core demographic confirmed:</strong> Ages 45–64 and 65+ represent 63%+ of total reach — the ideal extended-stay and retirement-focused audience. Mobile-first with Click-to-Call is the correct channel strategy.</div>
+      </div>
+      <div class="insight">
+        <div class="insight-text"><strong>Refined search intent:</strong> Spend is concentrated on "rv parks bakersfield" and "bakersfield rv park." Junk terms (tent, beach, free) have been removed and will be pruned weekly to ensure $0 is wasted.</div>
+      </div>
+    </div>
+
+    <div class="next-step">
+      <div class="next-title">Next step — observation phase (10–14 days)</div>
+      <div class="next-items">
+        <div class="next-item"><strong>Do not change bids</strong>Let "Maximize Clicks" run while conversion data accumulates. Target: 15–20 recorded calls.</div>
+        <div class="next-item"><strong>Monitor conversions</strong>Check the Conversions column daily. First wave of phone leads expected within 7–10 days.</div>
+        <div class="next-item"><strong>Flip to maximize conversions</strong>Once 15–20 calls are logged, switch bidding so the AI targets callers specifically.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Shaded Haven RV Park · Google Ads Campaign Report · March 14 – April 12, 2025</footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script>
+    const isDark = matchMedia('(prefers-color-scheme: dark)').matches;
+    const grid = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+    const lbl  = isDark ? '#9a9993' : '#888';
+
+    const devD = {
+      labels: ['Mobile phones','Computers','Tablets','TV screens'],
+      data:   [91.0, 6.7, 2.3, 0.0],
+      colors: ['#D85A30','#1D9E75','#378ADD','#888780']
+    };
+    new Chart(document.getElementById('deviceChart'), {
+      type: 'doughnut',
+      data: { labels: devD.labels, datasets: [{ data: devD.data, backgroundColor: devD.colors, borderWidth: 2, borderColor: isDark ? '#1e1e1c' : '#fff', hoverOffset: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.label}: ${i.raw}%` } } } }
+    });
+    const leg = document.getElementById('devLeg');
+    devD.labels.forEach((l, i) => {
+      const s = document.createElement('span');
+      s.style.cssText = 'display:flex;align-items:center;';
+      s.innerHTML = `<span class="ld" style="background:${devD.colors[i]}"></span>${l} ${devD.data[i]}%`;
+      leg.appendChild(s);
+    });
+
+    new Chart(document.getElementById('ageChart'), {
+      type: 'bar',
+      data: {
+        labels: ['18–24','25–34','35–44','45–54','55–64','65+'],
+        datasets: [{ data: [143,243,349,406,462,396], backgroundColor: ['#26215C','#3C3489','#0F6E56','#1D9E75','#5DCAA5','#97C459'], borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} impressions` } } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: lbl, font: { size: 11 } } },
+          y: { grid: { color: grid }, ticks: { color: lbl, font: { size: 11 } }, title: { display: true, text: 'Impressions', color: lbl, font: { size: 10 } } }
+        }
+      }
+    });
+
+    const hrs = ['12a','1a','2a','3a','4a','5a','6a','7a','8a','9a','10a','11a','12p','1p','2p','3p','4p','5p','6p','7p','8p','9p','10p','11p'];
+    const imp = [0,0,0,0,0,0,0,0,18,62,145,241,300,282,270,248,195,143,87,22,5,0,0,0];
+    new Chart(document.getElementById('hourChart'), {
+      type: 'line',
+      data: { labels: hrs, datasets: [{ data: imp, fill: true, backgroundColor: isDark ? 'rgba(29,158,117,0.15)' : 'rgba(29,158,117,0.1)', borderColor: '#1D9E75', borderWidth: 2, pointBackgroundColor: '#1D9E75', pointRadius: 2, pointHoverRadius: 5, tension: 0.35 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw} impressions` } } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: lbl, font: { size: 9 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 12 } },
+          y: { grid: { color: grid }, ticks: { color: lbl, font: { size: 11 } }, suggestedMax: 330 }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('compChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Shaded Haven','Competitor A','Competitor B','Competitor C','Competitor D'],
+        datasets: [{ data: [26.3,9.1,7.4,5.8,3.2], backgroundColor: ['#1D9E75','#B4B2A9','#B4B2A9','#B4B2A9','#B4B2A9'], borderRadius: 3, borderSkipped: false }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `${i.raw}% share` } } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: lbl, font: { size: 9 } } },
+          y: { grid: { color: grid }, ticks: { color: lbl, font: { size: 10 }, callback: v => `${v}%` }, suggestedMax: 35 }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('termChart'), {
+      type: 'bar',
+      data: {
+        labels: ['rv parks bakersfield','bakersfield rv park','rv park','rv parks near me','shaded haven rv park photos'],
+        datasets: [{ data: [39.2,22.4,18.7,14.1,8.3], backgroundColor: ['#993C1D','#D85A30','#BA7517','#EF9F27','#534AB7'], borderRadius: 4, borderSkipped: false }]
+      },
+      options: {
+        indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: i => `$${i.raw.toFixed(2)}` } } },
+        scales: {
+          x: { grid: { color: grid }, ticks: { color: lbl, font: { size: 10 }, callback: v => `$${v}` } },
+          y: { grid: { display: false }, ticks: { color: isDark ? '#ccc' : '#555', font: { size: 11 } } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
